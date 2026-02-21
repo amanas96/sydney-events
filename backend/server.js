@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json()); // Parses incoming JSON requests
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
@@ -43,14 +43,14 @@ app.use(passport.session());
 // --- 3. MongoDB Connection ---
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Sydney Events DB Connected"))
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+  .then(() => console.log(" Sydney Events DB Connected"))
+  .catch((err) => console.error(" MongoDB Connection Error:", err));
 
 mongoose.connection.once("open", async () => {
   const count = await mongoose.connection.db
     .collection("events")
     .countDocuments();
-  console.log(`🔎 Total documents found in 'events' collection: ${count}`);
+  console.log(` Total documents found in 'events' collection: ${count}`);
 });
 
 // --- 4. Route Delegation ---
@@ -70,6 +70,6 @@ app.use((err, req, res, next) => {
 // --- 6. Start Server ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 API Base: http://localhost:${PORT}/api`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(` API Base: http://localhost:${PORT}/api`);
 });

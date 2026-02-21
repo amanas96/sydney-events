@@ -68,15 +68,15 @@ router.post("/tickets", async (req, res) => {
 // PATCH Import (Protected)
 router.patch("/events/:id/import", async (req, res) => {
   // DEBUGGING LOGS
-  console.log("🛠️ IMPORT ATTEMPT START");
-  console.log("🔹 Target Event ID:", req.params.id);
-  console.log("🔹 Is Authenticated?:", req.isAuthenticated());
-  console.log("🔹 User Data:", req.user ? req.user.email : "NO USER FOUND");
+  console.log(" IMPORT ATTEMPT START");
+  console.log(" Target Event ID:", req.params.id);
+  console.log(" Is Authenticated?:", req.isAuthenticated());
+  console.log(" User Data:", req.user ? req.user.email : "NO USER FOUND");
 
   try {
     const { importNotes } = req.body;
     if (!req.isAuthenticated()) {
-      console.log("❌ REJECTED: User not authenticated");
+      console.log(" REJECTED: User not authenticated");
       return res.status(401).json({ error: "Please log in first" });
     }
 
@@ -92,14 +92,14 @@ router.patch("/events/:id/import", async (req, res) => {
     );
 
     if (!event) {
-      console.log("❌ REJECTED: Event ID not found in DB");
+      console.log(" REJECTED: Event ID not found in DB");
       return res.status(404).json({ error: "Event not found" });
     }
 
-    console.log("✅ SUCCESS: Event status updated to 'imported'");
+    console.log(" SUCCESS: Event status updated to 'imported'");
     res.json(event);
   } catch (err) {
-    console.error("🔥 CRASH:", err.message);
+    console.error(" CRASH:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -107,9 +107,6 @@ router.patch("/events/:id/import", async (req, res) => {
 // GET Captured Leads (Admin Only)
 router.get("/leads", async (req, res) => {
   try {
-    // if (!req.isAuthenticated() || !req.user.isAdmin) {
-    //   return res.status(403).json({ error: "Access denied. Admins only." });
-    // }
     const leads = await TicketLead.find().populate("eventId", "title");
     res.json(leads);
   } catch (err) {
