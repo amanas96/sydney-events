@@ -18,7 +18,11 @@ const app = express();
 app.use(express.json()); // Parses incoming JSON requests
 app.use(
   cors({
-    origin: "https://sydney-events-sigma.vercel.app",
+    origin: [
+      "https://sydney-events-sigma.vercel.app",
+      "https://sydney-events-git-main-amanas96s-projects.vercel.app",
+      process.env.FRONTEND_URL,
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
