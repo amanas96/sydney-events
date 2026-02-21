@@ -1,0 +1,30 @@
+name: Sydney Event Scraper
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          cd scraper
+          pip install -r requirements.txt
+
+      - name: Run Scraper
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          cd scraper
+          python scraper.py
