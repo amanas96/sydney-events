@@ -1,0 +1,10 @@
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  googleId: String,
+  displayName: String,
+  email: String,
+  role: { type: String, default: "admin" }, // For  dashboard access
+});
+
+module.exports = mongoose.model("User", userSchema);
