@@ -3,10 +3,17 @@ const passport = require("passport");
 const router = express.Router();
 
 // Trigger Google Login
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }),
-);
+console.log("✅ authRoutes.js loaded!"); // ✅ Debug log
+
+// Trigger Google Login
+router.get("/google", (req, res, next) => {
+  console.log("🔐 /auth/google route hit!"); // ✅ Debug log
+  passport.authenticate("google", { scope: ["profile", "email"] })(
+    req,
+    res,
+    next,
+  );
+});
 
 // Google Callback
 router.get(
@@ -29,5 +36,7 @@ router.get("/logout", (req, res) => {
     res.redirect(process.env.FRONTEND_URL);
   });
 });
+
+console.log("✅ authRoutes exported!");
 
 module.exports = router;

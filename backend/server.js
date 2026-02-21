@@ -6,7 +6,7 @@ const passport = require("passport");
 const session = require("express-session");
 
 // Import Route Handlers
-const authRoutes = require("./routes/authRoutes");
+const authRoutes = require("./routes/authRoutes"); // ✅ Verify this path!
 const eventRoutes = require("./routes/eventRoutes");
 
 // Import Passport Config
@@ -14,23 +14,21 @@ require("./config/passport");
 
 const app = express();
 
-// --- 1. CORS CONFIGURATION (MUST BE FIRST!) ---
+// --- 1. CORS Configuration ---
 const allowedOrigins = [
   "https://sydney-events-sigma.vercel.app",
   "https://sydney-events-git-main-amanas96s-projects.vercel.app",
-  "http://localhost:5173", // ✅ Add for Vite dev
+  "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
-// Add environment variable if exists
 if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
 }
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
-
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -39,16 +37,17 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ✅ Added OPTIONS
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Added headers
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   optionsSuccessStatus: 200,
+  preflightContinue: false,
 };
 
-// ✅ Apply CORS BEFORE any other middleware
 app.use(cors(corsOptions));
 
-// --- 2. Other Middleware ---
-app.use(express.json()); // Now comes AFTER CORS
+// --- 2. Body Parsing Middleware ---
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // ✅ Add this for form data
 
 // --- 3. Session & Passport Setup ---
 app.use(
@@ -57,10 +56,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      secure: process.env.NODE_ENV === "production", // ✅ Fixed: true in production
+      maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      httpOnly: true, // ✅ Added for security
+      httpOnly: true,
     },
   }),
 );
@@ -80,23 +79,49 @@ mongoose.connection.once("open", async () => {
   console.log(`📊 Total documents found in 'events' collection: ${count}`);
 });
 
-// --- 5. Route Delegation ---
-
-// Auth routes handle /auth/google, /auth/logout, etc.
-app.use("/auth", authRoutes);
-
-// API routes handle /api/dashboard, /api/tickets, /api/events/:id/import
-app.use("/api", eventRoutes);
-
-// --- 6. Global Error Handling ---
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ error: "Something went wrong on the server!" });
+// --- 5. TEST ROUTE (for debugging) ---
+app.get("/test", (req, res) => {
+  res.json({ message: "Server is working!", timestamp: new Date() });
 });
 
-// --- 7. Start Server ---
+// --- 6. Route Delegation (MUST be AFTER session setup!) ---
+console.log("📍 Registering /auth routes..."); // ✅ Debug log
+app.use("/auth", authRoutes);
+
+console.log("📍 Registering /api routes..."); // ✅ Debug log
+app.use("/api", eventRoutes);
+
+// --- 7. 404 Handler (MUST be AFTER all routes!) ---
+app.use((req, res, next) => {
+  console.log(`❌ 404: ${req.method} ${req.url}`); // ✅ Debug log
+  res.status(404).json({
+    success: false,
+    message: `Not Found - ${req.url}`,
+    availableRoutes: [
+      "GET /test",
+      "GET /auth/google",
+      "GET /auth/google/callback",
+      "GET /auth/current_user",
+      "GET /auth/logout",
+      "GET /api/dashboard",
+    ],
+  });
+});
+
+// --- 8. Global Error Handling ---
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Something went wrong on the server!",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+});
+
+// --- 9. Start Server ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 API Base: http://localhost:${PORT}/api`);
+  console.log(`🔐 Auth Base: http://localhost:${PORT}/auth`);
 });
