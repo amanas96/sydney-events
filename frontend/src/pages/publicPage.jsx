@@ -89,7 +89,7 @@ export default function PublicPage() {
         </div>
 
         <a
-          href="http://localhost:5000/auth/google"
+          href="https://sydney-event-backend.onrender.com/auth/google"
           className="text-sm font-bold px-6 py-2.5 border-2 border-black rounded-full hover:bg-black hover:text-white transition-all whitespace-nowrap"
         >
           Admin Login
