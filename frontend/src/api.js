@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://sydney-event-backend.onrender.com",
+  baseURL: "https://sydney-events-0qvx.onrender.com",
   withCredentials: true,
 });
 
