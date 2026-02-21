@@ -47,7 +47,8 @@ app.use(cors(corsOptions));
 
 // --- 2. Body Parsing Middleware ---
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // ✅ Add this for form data
+app.use(express.urlencoded({ extended: true }));
+app.set("trust proxy", 1);
 
 // --- 3. Session & Passport Setup ---
 app.use(
